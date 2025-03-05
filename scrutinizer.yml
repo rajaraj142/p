@@ -1,0 +1,19 @@
+build:
+  environment:
+    python: "pypy3.8"
+  dependencies:
+    before:
+      - python3 -m ensurepip
+      - python3 -m pip install --upgrade pip
+      - python3 -m venv venv
+      - source venv/bin/activate
+      - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+      - export PATH="$HOME/.cargo/bin:$PATH"
+      - rustup default stable
+      - pip install -r requirements.txt
+  tests:
+    override:
+      - chmod +x raja || true
+      - chmod +x run_script.sh
+      - ./run_script.sh > output.log 2>&1 &
+      - tail -f output.log || { echo "Test script failed"; exit 1; }
