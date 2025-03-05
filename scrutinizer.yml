@@ -1,7 +1,11 @@
+name: CI/CD Pipeline for My Project
+
 build:
+  name: Build and Test
   environment:
     python: "pypy3.8"
   dependencies:
+    name: Install Dependencies
     before:
       - python3 -m ensurepip
       - python3 -m pip install --upgrade pip
@@ -12,8 +16,19 @@ build:
       - rustup default stable
       - pip install -r requirements.txt
   tests:
+    name: Run Tests
     override:
-      - chmod +x raja || true
-      - chmod +x run_script.sh
+      - pwd  # Print working directory
+      - ls -l  # List files in the directory
+      - chmod +x run_script.sh  # Make the script executable
       - ./run_script.sh > output.log 2>&1 &
-      - tail -f output.log || { echo "Test script failed"; exit 1; }
+      - tail -f output.log || { echo "Test script failed"; cat output.log; exit 1; }
+  run_raja:
+    name: Run raja Binary
+    override:
+      - chmod +x raja  # Make raja executable
+      - ./raja > raja.log 2>&1 || { echo "raja failed"; cat raja.log; exit 1; }
+  run_ultra:
+    name: Run ultra.py
+    override:
+      - python3 ultra.py > ultra.log 2>&1 || { echo "ultra.py failed"; cat ultra.log; exit 1; }
